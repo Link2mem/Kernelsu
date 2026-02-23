@@ -1,0 +1,17 @@
+name: Setup KernelSU-Next
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # هذا يتيح لك تشغيل الأمر يدوياً أيضاً
+
+jobs:
+  install-ksu:
+    runs-with: ubuntu-latest
+    steps:
+      - name: تحميل سورس الكود (Checkout)
+        uses: actions/checkout@v4
+
+      - name: تنفيذ أمر KernelSU-Next
+        run: |
+          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
