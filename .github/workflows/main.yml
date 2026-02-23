@@ -9,26 +9,22 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your empty repo
+      - name: Checkout your repo
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Clone KernelSU-Next Source
+      - name: Fetch and Run Setup Script
         run: |
-          # سحب مستودع KernelSU-Next بالكامل (فرع next)
-          git clone -b next https://github.com/KernelSU-Next/KernelSU-Next.git temp_ksu
+          # ملاحظة: تم تغيير الفرع إلى main لأن next غير موجود حالياً في المستودع الرسمي
+          # إذا كنت تريد نسخة الـ legacy كما طلبت:
+          curl -LSs "https://raw.githubusercontent.com/rifscc/KernelSU-Next/main/kernel/setup.sh" | bash -s legacy
           
-          # نقل مجلد الـ kernel فقط إلى مستودعك (أو الملفات التي تريدها)
-          cp -r temp_ksu/kernel/* .
-          
-          # حذف المجلد المؤقت
-          rm -rf temp_ksu
+          # إذا كنت تريد سحب الملفات يدوياً بعد تشغيل السكريبت
+          # يمكنك إضافة أوامر إضافية هنا إذا لزم الأمر
 
-      - name: Push files to your repo
+      - name: Push updates to your repo
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
-          git commit -m "Add KernelSU-Next files from source" || echo "No changes to commit"
+          git commit -m "Sync KernelSU-Next legacy files" || echo "No changes to commit"
           git push
