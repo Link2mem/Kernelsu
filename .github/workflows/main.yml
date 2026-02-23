@@ -1,4 +1,4 @@
-name: KernelSU-Next Setup
+name: Sync KernelSU-Next Files
 
 on:
   push:
@@ -6,14 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    # تم تصحيح الكلمة هنا من runs-with إلى runs-on
+  sync:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout your empty repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run KernelSU-Next Setup
+      - name: Clone KernelSU-Next Source
         run: |
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+          # سحب مستودع KernelSU-Next بالكامل (فرع next)
+          git clone -b next https://github.com/KernelSU-Next/KernelSU-Next.git temp_ksu
+          
+          # نقل مجلد الـ kernel فقط إلى مستودعك (أو الملفات التي تريدها)
+          cp -r temp_ksu/kernel/* .
+          
+          # حذف المجلد المؤقت
+          rm -rf temp_ksu
+
+      - name: Push files to your repo
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Add KernelSU-Next files from source" || echo "No changes to commit"
+          git push
